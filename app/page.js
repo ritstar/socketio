@@ -12,20 +12,6 @@ export default function Home() {
   const [lineWidth, setLineWidth] = useState(2);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
-  function clearCanvas() {
-    // Emit 'clearCanvas' event to the server
-    socket.emit('clearCanvas');
-  
-    // Local canvas clearing logic
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
-  
-    // Optionally, reset other states like color and lineWidth if needed
-    setColor('#000000'); // Default color
-    setLineWidth(2); // Default line width
-  }
-
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
@@ -50,7 +36,7 @@ export default function Home() {
 
       socket.on('clearCanvas', () => {
         console.log('Received clearCanvas command');
-        clearCanvas(); // Call the clearCanvas function defined above
+        context.clearRect(0, 0, canvas.width, canvas.height);
       });
     };
 
@@ -98,11 +84,6 @@ export default function Home() {
       drawLine(data);
     }
 
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDrawing);
-    canvas.addEventListener('mouseout', stopDrawing);
-
     function setSize() {
       const container = canvas.parentElement;
       const newWidth = container.clientWidth - 40;
@@ -113,6 +94,11 @@ export default function Home() {
     setSize();
     window.addEventListener('resize', setSize);
 
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
     return () => {
       canvas.removeEventListener('mousedown', startDrawing);
       canvas.removeEventListener('mousemove', draw);
@@ -122,6 +108,10 @@ export default function Home() {
       if (socket) socket.disconnect();
     };
   }, [isDrawing, color, lineWidth]);
+
+  function clearCanvas() {
+    socket.emit('clearCanvas');
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">

@@ -12,13 +12,12 @@ const handle = app.getRequestHandler();
 let drawingState = [];
 const expressApp = express();
 app.prepare().then(() => {
-  
   const server = http.createServer(expressApp);
   const io = new Server(server);
 
   io.on('connection', (socket) => {
     console.log('New client connected');
-    
+
     socket.on('getDrawingState', () => {
       console.log('Sending drawing state to new client');
       socket.emit('drawingState', drawingState);
