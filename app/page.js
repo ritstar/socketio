@@ -12,6 +12,20 @@ export default function Home() {
   const [lineWidth, setLineWidth] = useState(2);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
+  function clearCanvas() {
+    // Emit 'clearCanvas' event to the server
+    socket.emit('clearCanvas');
+  
+    // Local canvas clearing logic
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  
+    // Optionally, reset other states like color and lineWidth if needed
+    setColor('#000000'); // Default color
+    setLineWidth(2); // Default line width
+  }
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
@@ -32,6 +46,11 @@ export default function Home() {
       socket.on('draw', (data) => {
         console.log('Received draw event');
         drawLine(data, false);
+      });
+
+      socket.on('clearCanvas', () => {
+        console.log('Received clearCanvas command');
+        clearCanvas(); // Call the clearCanvas function defined above
       });
     };
 
@@ -133,6 +152,11 @@ export default function Home() {
               height={canvasSize.height}
               className="border-2 border-gray-300 rounded-lg shadow-md"
             />
+          </div>
+          <div className="w-full flex justify-end p-4">
+            <button onClick={clearCanvas} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+              Clear White Board
+            </button>
           </div>
         </div>
       </div>
